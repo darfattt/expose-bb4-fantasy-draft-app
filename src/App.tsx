@@ -58,6 +58,8 @@ const App = () => {
     player: string;
     position: string;
   }>>([]);
+  const [draftMode, setDraftMode] = useState<'linear' | 'snake'>('linear');
+  const [currentRound, setCurrentRound] = useState(0);
 
   useEffect(() => {
     loadPlayersFromCSV();
@@ -178,21 +180,12 @@ const App = () => {
       return m;
     });
     
-    // Update pick counts
-    const currentManagerId = managers[currentManager].id;
-    const newPickCount = (managerPickCounts[currentManagerId] || 0) + 1;
-    
-    setManagerPickCounts(prev => ({
-      ...prev,
-      [currentManagerId]: newPickCount
-    }));
-
+    // Update draft history
     setDraftHistory(prev => [
       ...prev,
       {
         manager: managers[currentManager].name,
         pickNumber: prev.length + 1,
-        pickCount: newPickCount,
         player: player.name,
         position: player.position
       }
@@ -200,11 +193,34 @@ const App = () => {
     
     setPlayers(updatedPlayers);
     setManagers(updatedManagers);
-    setCurrentManager((currentManager + 1) % 4); // Move to next manager
-  };
 
-  const startDraft = () => {
-    setDraftStarted(true);
+    // Calculate next manager based on draft mode
+    if (draftMode === 'linear') {
+      setCurrentManager((prev) => (prev + 1) % 4);
+    } else {
+      // Snake draft logic
+      const totalPicks = draftHistory.length + 1; // Include current pick
+      const round = Math.floor(totalPicks / 4);
+      const isReverseRound = round % 2 === 1;
+      
+      if (isReverseRound) {
+        // Reverse order (3→2→1→0)
+        const position = totalPicks % 4;
+        if (position === 0) {
+          setCurrentManager(0); // Start next round
+        } else {
+          setCurrentManager(3 - position);
+        }
+      } else {
+        // Forward order (0→1→2→3)
+        const position = totalPicks % 4;
+        if (position === 0) {
+          setCurrentManager(3); // Start next round
+        } else {
+          setCurrentManager(position);
+        }
+      }
+    }
   };
 
   const getPlayerCountByPosition = (managerPlayers, position) => {
@@ -241,10 +257,51 @@ const App = () => {
       )}
       <h1 className="text-3xl font-bold mb-4">Expose BB.4.0 Fantasy Draft App</h1>
       
+      {!draftStarted && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Draft Order:
+          </label>
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
+              <input
+                type="radio"
+                name="draftMode"
+                value="linear"
+                checked={draftMode === 'linear'}
+                onChange={(e) => setDraftMode(e.target.value as 'linear' | 'snake')}
+                className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+              />
+              <span className="text-sm text-gray-700">
+                Linear Order (1-2-3-4 each round)
+              </span>
+            </label>
+            
+            <label className="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
+              <input
+                type="radio"
+                name="draftMode"
+                value="snake"
+                checked={draftMode === 'snake'}
+                onChange={(e) => setDraftMode(e.target.value as 'linear' | 'snake')}
+                className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+              />
+              <span className="text-sm text-gray-700">
+                Snake Order (1-2-3-4, 4-3-2-1)
+              </span>
+            </label>
+          </div>
+        </div>
+      )}
+      
       {!draftStarted ? (
         <div className="mb-6">
           <button 
-            onClick={startDraft} 
+            onClick={() => {
+              setDraftStarted(true);
+              setCurrentRound(0);
+              setCurrentManager(0); // Start with first manager
+            }}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Start Draft
