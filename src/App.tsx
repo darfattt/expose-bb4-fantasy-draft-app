@@ -29,20 +29,20 @@ const App = () => {
   const [managers, setManagers] = useState([
     { 
       id: 1, 
-      name: 'Manager 1', 
+      name: 'Randy', 
       budget: 100, 
       players: [],
-      image: '/default-manager.svg' 
+      image: '/manager_randy.png' 
     },
     { 
       id: 2, 
-      name: 'Manager 2', 
+      name: 'Ilham', 
       budget: 100, 
       players: [],
-      image: '/default-manager.svg'
+      image: '/manager_ilham.png'
     },
-    { id: 3, name: 'Manager 3', budget: 100, players: [], image: '/default-manager.svg' },
-    { id: 4, name: 'Manager 4', budget: 100, players: [], image: '/default-manager.svg' }
+    { id: 3, name: 'APH', budget: 100, players: [], image: '/manager_aph.png' },
+    { id: 4, name: 'Darfat', budget: 100, players: [], image: '/manager_darfat.png' }
   ]);
   const [currentManager, setCurrentManager] = useState(0);
   const [draftStarted, setDraftStarted] = useState(false);
