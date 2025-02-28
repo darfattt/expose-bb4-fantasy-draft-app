@@ -223,10 +223,27 @@ const App = () => {
           </button>
         </div>
       ) : (
-        <div className="mb-6 bg-blue-100 p-4 rounded">
-          <h2 className="text-xl font-semibold">Current Drafter: {managers[currentManager].name}</h2>
-          <p className="text-lg">Budget Remaining: £{managers[currentManager].budget}m</p>
-          <p className="text-sm">Players: {managers[currentManager].players.length}/15</p>
+        <div className="mb-6 bg-blue-100 p-4 rounded flex items-center gap-4">
+          <img 
+            src={managers[currentManager].image}
+            alt={managers[currentManager].name}
+            className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/default-manager.svg';
+            }}
+          />
+          <div>
+            <h2 className="text-xl font-semibold">Current Drafter</h2>
+            <p className="text-lg">{managers[currentManager].name}</p>
+            <div className="flex gap-4 mt-1">
+              <span className="text-sm bg-blue-200 px-2 py-1 rounded">
+                Budget: £{managers[currentManager].budget}m
+              </span>
+              <span className="text-sm bg-blue-200 px-2 py-1 rounded">
+                Players: {managers[currentManager].players.length}/15
+              </span>
+            </div>
+          </div>
         </div>
       )}
       
