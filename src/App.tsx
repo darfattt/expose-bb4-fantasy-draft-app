@@ -50,6 +50,14 @@ const App = () => {
   const [gradeFilter, setGradeFilter] = useState('All');
   const [alertMessage, setAlertMessage] = useState('');
   const [showAlert, setShowAlert] = useState(false);
+  const [managerPickCounts, setManagerPickCounts] = useState({});
+  const [draftHistory, setDraftHistory] = useState<Array<{
+    manager: string;
+    pickNumber: number;
+    pickCount: number;
+    player: string;
+    position: string;
+  }>>([]);
 
   useEffect(() => {
     loadPlayersFromCSV();
@@ -169,6 +177,26 @@ const App = () => {
       }
       return m;
     });
+    
+    // Update pick counts
+    const currentManagerId = managers[currentManager].id;
+    const newPickCount = (managerPickCounts[currentManagerId] || 0) + 1;
+    
+    setManagerPickCounts(prev => ({
+      ...prev,
+      [currentManagerId]: newPickCount
+    }));
+
+    setDraftHistory(prev => [
+      ...prev,
+      {
+        manager: managers[currentManager].name,
+        pickNumber: prev.length + 1,
+        pickCount: newPickCount,
+        player: player.name,
+        position: player.position
+      }
+    ]);
     
     setPlayers(updatedPlayers);
     setManagers(updatedManagers);
@@ -423,6 +451,38 @@ const App = () => {
         <p className="mt-1 text-sm text-gray-600">
           Each manager has a £100m budget. Players must be selected according to position limits.
         </p>
+      </div>
+      
+      <div className="mt-6 p-4 border rounded bg-gray-50">
+        <h2 className="text-xl font-bold mb-4">Draft History</h2>
+        <div className="space-y-2">
+          {draftHistory.map((entry, index) => {
+            const ordinal = entry.pickCount === 1 ? 'st' : 
+                           entry.pickCount === 2 ? 'nd' :
+                           entry.pickCount === 3 ? 'rd' : 'th';
+                             
+            return (
+              <div 
+                key={index}
+                className="p-2 bg-white rounded border flex items-center gap-2 text-sm"
+              >
+                <span className="font-mono text-gray-500 w-12">#{entry.pickNumber}</span>
+                <span className="font-semibold min-w-[100px]">{entry.manager}</span>
+                <span className="text-gray-600">
+                  {entry.pickCount}
+                  {ordinal} pick: 
+                  <span className="bg-gray-200 px-1 rounded mx-2">{entry.position}</span>
+                  {entry.player}
+                </span>
+              </div>
+            );
+          })}
+          {draftHistory.length === 0 && (
+            <div className="text-gray-500 text-center py-4">
+              No draft picks yet
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
