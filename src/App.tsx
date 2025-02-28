@@ -1,4 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import Papa from 'papaparse';
+
+const AlertModal = ({ message, onClose }: { message: string; onClose: () => void }) => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="bg-white rounded-lg p-6 max-w-md w-full animate-fade-in">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold">Warning</h3>
+        <button 
+          onClick={onClose}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          ✕
+        </button>
+      </div>
+      <p className="text-gray-600">{message}</p>
+      <button
+        onClick={onClose}
+        className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded"
+      >
+        OK
+      </button>
+    </div>
+  </div>
+);
 
 const App = () => {
   const [players, setPlayers] = useState([]);
@@ -12,137 +36,67 @@ const App = () => {
   const [draftStarted, setDraftStarted] = useState(false);
   const [positionFilter, setPositionFilter] = useState('All');
   const [gradeFilter, setGradeFilter] = useState('All');
+  const [alertMessage, setAlertMessage] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
 
-  // Generate sample players on initial load
   useEffect(() => {
-    generateSamplePlayers();
+    loadPlayersFromCSV();
   }, []);
 
-  const generateSamplePlayers = () => {
-    const positions = ['GK', 'DEF', 'MID', 'FWD'];
-    const grades = ['A+', 'A', 'B', 'C', 'D', 'E', 'F'];
-    const newPlayers = [];
-    let idCounter = 1;
-    
-    // Generate exactly 4 goalkeepers
-    for (let i = 1; i <= 4; i++) {
-      const grade = i === 1 ? 'A' : ['B', 'C', 'D'][Math.floor(Math.random() * 3)]; // One top GK
-      newPlayers.push({
-        id: idCounter++,
-        name: `Goalkeeper ${i}`,
-        position: 'GK',
-        grade,
-        price: calculatePrice('GK', grade),
-        selected: false
-      });
-    }
-    
-    // Generate 18 defenders
-    for (let i = 1; i <= 18; i++) {
-      const grade = i === 1 && newPlayers.filter(p => p.grade === 'A+').length < 2 
-        ? 'A+' 
-        : grades.slice(1)[Math.floor(Math.random() * (grades.length - 1))];
-      newPlayers.push({
-        id: idCounter++,
-        name: `Defender ${i}`,
-        position: 'DEF',
-        grade,
-        price: calculatePrice('DEF', grade),
-        selected: false
-      });
-    }
-    
-    // Generate 20 midfielders
-    for (let i = 1; i <= 20; i++) {
-      const grade = i === 1 && newPlayers.filter(p => p.grade === 'A+').length < 2
-        ? 'A+' 
-        : grades.slice(1)[Math.floor(Math.random() * (grades.length - 1))];
-      newPlayers.push({
-        id: idCounter++,
-        name: `Midfielder ${i}`,
-        position: 'MID',
-        grade,
-        price: calculatePrice('MID', grade),
-        selected: false
-      });
-    }
-    
-    // Generate 18 forwards
-    for (let i = 1; i <= 18; i++) {
-      const grade = grades.slice(1)[Math.floor(Math.random() * (grades.length - 1))];
-      newPlayers.push({
-        id: idCounter++,
-        name: `Forward ${i}`,
-        position: 'FWD',
-        grade,
-        price: calculatePrice('FWD', grade),
-        selected: false
-      });
-    }
-    
-    // Ensure we have exactly 2 A+ players
-    const aPlus = newPlayers.filter(p => p.grade === 'A+');
-    if (aPlus.length < 2) {
-      // Add A+ to a random forward if needed
-      const availableForwards = newPlayers.filter(p => p.position === 'FWD' && p.grade !== 'A+');
-      const randomIndex = Math.floor(Math.random() * availableForwards.length);
-      newPlayers.forEach(player => {
-        if (player.id === availableForwards[randomIndex].id) {
-          player.grade = 'A+';
-          player.price = calculatePrice(player.position, 'A+');
-        }
-      });
-    } else if (aPlus.length > 2) {
-      // Downgrade extra A+ players to A
-      const extraAPlus = aPlus.slice(2);
-      newPlayers.forEach(player => {
-        if (extraAPlus.some(p => p.id === player.id)) {
-          player.grade = 'A';
-          player.price = calculatePrice(player.position, 'A');
-        }
-      });
-    }
-    
-    setPlayers(newPlayers);
-  };
+  const loadPlayersFromCSV = async () => {
+    try {
+      const response = await fetch('/player-list.csv');
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch CSV: ${response.status} ${response.statusText}`);
+      }
 
-  const calculatePrice = (position, grade) => {
-    let basePrice = 0;
-    
-    switch (grade) {
-      case 'A+':
-        basePrice = 19 + (Math.floor(Math.random() * 5) * 0.5); // 19-21.5
-        break;
-      case 'A':
-        basePrice = 14 + (Math.floor(Math.random() * 9) * 0.5); // 14-18
-        break;
-      case 'B':
-        basePrice = 10 + (Math.floor(Math.random() * 7) * 0.5); // 10-13
-        break;
-      case 'C':
-        basePrice = 7 + (Math.floor(Math.random() * 5) * 0.5); // 7-9
-        break;
-      case 'D':
-        basePrice = 5 + (Math.floor(Math.random() * 3) * 0.5); // 5-6
-        break;
-      case 'E':
-        basePrice = 4 + (Math.floor(Math.random() * 3) * 0.5); // 4-5
-        break;
-      case 'F':
-        basePrice = 4; // Minimum 4 as requested
-        break;
-      default:
-        basePrice = 4;
+      const csvText = await response.text();
+      
+
+      Papa.parse(csvText, {
+        header: true,
+        delimiter: ',',
+        skipEmptyLines: 'greedy',
+        transformHeader: (header) => header.trim(),
+        transform: (value) => value.trim(),
+        complete: (results) => {
+
+          if (results.errors.length > 0) {
+            console.error('Parsing errors:', results.errors);
+          }
+
+          if (!results.data || results.data.length === 0) {
+            console.error('No data parsed from CSV');
+            return;
+          }
+
+          const parsedPlayers = results.data
+            .filter(row => {
+              const isValid = row.Name && row.Position && row.Grade && row.Price;
+              if (!isValid) {
+                console.warn('Invalid row:', row);
+              }
+              return isValid;
+            })
+            .map((row, index) => ({
+              id: index + 1,
+              name: String(row.Name),
+              position: String(row.Position).toUpperCase(),
+              grade: String(row.Grade).toUpperCase(),
+              price: parseFloat(row.Price) || 0,
+              selected: false,
+            }));
+
+          setPlayers(parsedPlayers);
+        },
+        error: (error) => {
+          console.error('Papa Parse Error:', error);
+        }
+      });
+    } catch (error) {
+      console.error('CSV Loading Error:', error);
     }
-    
-    // Position-specific adjustments
-    if (position === 'FWD' && (grade === 'A+' || grade === 'A')) {
-      basePrice += 1.5; // Premium for top forwards
-    } else if (position === 'GK') {
-      basePrice = Math.max(4, basePrice - 1.5); // Goalkeepers slightly cheaper but minimum 4
-    }
-    
-    return parseFloat(basePrice.toFixed(1)); // Round to one decimal place
   };
 
   const selectPlayer = (playerId) => {
@@ -151,15 +105,38 @@ const App = () => {
     const player = players.find(p => p.id === playerId);
     const manager = managers[currentManager];
     
-    // Check if manager has enough budget
+    // Budget check
     if (player.price > manager.budget) {
-      alert(`${manager.name} doesn't have enough budget to select this player!`);
+      setAlertMessage(`${manager.name} needs £${player.price - manager.budget}m more to buy ${player.name}`);
+      setShowAlert(true);
+      return;
+    }
+    
+    // Position limit check
+    const positionCounts = {
+      'GK': getPlayerCountByPosition(manager.players, 'GK'),
+      'DEF': getPlayerCountByPosition(manager.players, 'DEF'),
+      'MID': getPlayerCountByPosition(manager.players, 'MID'),
+      'FWD': getPlayerCountByPosition(manager.players, 'FWD')
+    };
+    
+    const positionLimits = {
+      'GK': 1,
+      'DEF': 5,
+      'MID': 5,
+      'FWD': 4
+    };
+    
+    if (positionCounts[player.position] >= positionLimits[player.position]) {
+      setAlertMessage(`${manager.name} can't have more than ${positionLimits[player.position]} ${player.position} players`);
+      setShowAlert(true);
       return;
     }
     
     // Check if manager has reached 15 players
     if (manager.players.length >= 15) {
-      alert(`${manager.name} already has the maximum of 15 players!`);
+      setAlertMessage(`${manager.name} already has the maximum of 15 players!`);
+      setShowAlert(true);
       return;
     }
     
@@ -215,6 +192,12 @@ const App = () => {
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
+      {showAlert && (
+        <AlertModal 
+          message={alertMessage}
+          onClose={() => setShowAlert(false)}
+        />
+      )}
       <h1 className="text-3xl font-bold mb-4">Expose BB.4.0 Fantasy Draft App</h1>
       
       {!draftStarted ? (
@@ -375,8 +358,15 @@ const App = () => {
             <span>£4.0m</span>
           </div>
         </div>
-        <p className="mt-2 text-sm text-gray-600">Note: Forward A/A+ prices have a £1.5m premium. Goalkeeper prices have a £1.5m discount (minimum £4.0m).</p>
-        <p className="mt-1 text-sm text-gray-600">Each manager selects 15 players with a £100m budget. Players can be selected regardless of position.</p>
+        <p className="mt-2 text-sm text-gray-600">
+          Note: Forward A/A+ prices have a £1.5m premium. Goalkeeper prices have a £1.5m discount (minimum £4.0m).
+        </p>
+        <p className="mt-1 text-sm text-gray-600">
+          Squad Requirements: 1 GK, 5 DEF, 5 MID, 4 FWD (15 total players)
+        </p>
+        <p className="mt-1 text-sm text-gray-600">
+          Each manager has a £100m budget. Players must be selected according to position limits.
+        </p>
       </div>
     </div>
   );
