@@ -27,10 +27,22 @@ const AlertModal = ({ message, onClose }: { message: string; onClose: () => void
 const App = () => {
   const [players, setPlayers] = useState([]);
   const [managers, setManagers] = useState([
-    { id: 1, name: 'Manager 1', budget: 100, players: [] },
-    { id: 2, name: 'Manager 2', budget: 100, players: [] },
-    { id: 3, name: 'Manager 3', budget: 100, players: [] },
-    { id: 4, name: 'Manager 4', budget: 100, players: [] }
+    { 
+      id: 1, 
+      name: 'Manager 1', 
+      budget: 100, 
+      players: [],
+      image: '/default-manager.svg' 
+    },
+    { 
+      id: 2, 
+      name: 'Manager 2', 
+      budget: 100, 
+      players: [],
+      image: '/default-manager.svg'
+    },
+    { id: 3, name: 'Manager 3', budget: 100, players: [], image: '/default-manager.svg' },
+    { id: 4, name: 'Manager 4', budget: 100, players: [], image: '/default-manager.svg' }
   ]);
   const [currentManager, setCurrentManager] = useState(0);
   const [draftStarted, setDraftStarted] = useState(false);
@@ -81,10 +93,11 @@ const App = () => {
             })
             .map((row, index) => ({
               id: index + 1,
-              name: String(row.Name),
-              position: String(row.Position).toUpperCase(),
-              grade: String(row.Grade).toUpperCase(),
-              price: parseFloat(row.Price) || 0,
+              name: row.Name,
+              position: row.Position,
+              grade: row.Grade,
+              price: parseFloat(row.Price),
+              image: row.Image || '/face.svg',
               selected: false,
             }));
 
@@ -254,10 +267,18 @@ const App = () => {
               filteredPlayers.map(player => (
                 <div 
                   key={player.id} 
-                  className="border rounded p-3 flex justify-between items-center hover:bg-gray-50 cursor-pointer"
+                  className="border rounded p-3 flex items-center hover:bg-gray-50 cursor-pointer gap-4"
                   onClick={() => selectPlayer(player.id)}
                 >
-                  <div>
+                  <img 
+                    src={player.image} 
+                    alt={player.name}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/face.svg';
+                    }}
+                  />
+                  <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold">{player.name}</span>
                       <span className={`text-xs px-2 py-0.5 rounded text-white ${getBadgeColor(player.grade)}`}>
@@ -287,7 +308,17 @@ const App = () => {
                 className={`border rounded p-3 ${index === currentManager && draftStarted ? 'border-blue-500 bg-blue-50' : ''}`}
               >
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-bold">{manager.name}</h3>
+                  <div className="flex items-center gap-3">
+                    <img 
+                      src={manager.image}
+                      alt={manager.name}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-blue-500"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/default-manager.svg';
+                      }}
+                    />
+                    <h3 className="font-bold">{manager.name}</h3>
+                  </div>
                   <span className={`${manager.budget < 10 ? 'text-red-500' : ''} font-semibold`}>
                     £{manager.budget}m
                   </span>
@@ -307,8 +338,16 @@ const App = () => {
                 
                 <div className="max-h-48 overflow-y-auto">
                   {manager.players.map(player => (
-                    <div key={player.id} className="flex justify-between items-center py-1 border-t">
-                      <div>
+                    <div key={player.id} className="flex items-center py-1 border-t gap-2">
+                      <img 
+                        src={player.image}
+                        alt={player.name}
+                        className="w-8 h-8 rounded-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/face.svg';
+                        }}
+                      />
+                      <div className="flex-1">
                         <span className="text-xs bg-gray-200 px-1 rounded">{player.position}</span> {player.name}
                       </div>
                       <div className="flex items-center gap-1">
