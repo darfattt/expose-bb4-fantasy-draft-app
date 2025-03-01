@@ -61,6 +61,7 @@ const App = () => {
   const [draftMode, setDraftMode] = useState<'linear' | 'snake'>('linear');
   const [currentRound, setCurrentRound] = useState(0);
   const [maxPrice, setMaxPrice] = useState(11);
+  const [nameFilter, setNameFilter] = useState('');
 
   useEffect(() => {
     loadPlayersFromCSV();
@@ -246,7 +247,8 @@ const App = () => {
     const positionMatch = positionFilter === 'All' || p.position === positionFilter;
     const gradeMatch = gradeFilter === 'All' || p.grade === gradeFilter;
     const priceMatch = p.price <= maxPrice;
-    return !p.selected && positionMatch && gradeMatch && priceMatch;
+    const nameMatch = p.name.toLowerCase().includes(nameFilter.toLowerCase());
+    return !p.selected && positionMatch && gradeMatch && priceMatch && nameMatch;
   });
 
   // Add a function to handle skip turn
@@ -288,6 +290,17 @@ const App = () => {
           setCurrentManager(position);
         }
       }
+    }
+  };
+
+  // Add this helper function to determine position order
+  const getPositionOrder = (position: string) => {
+    switch (position) {
+      case 'GK': return 0;
+      case 'DEF': return 1;
+      case 'MID': return 2;
+      case 'FWD': return 3;
+      default: return 4;
     }
   };
 
@@ -391,6 +404,32 @@ const App = () => {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-3">
           <h2 className="text-2xl font-bold mb-4">Available Players</h2>
+          
+          <div className="mb-4">
+            <div className="font-semibold mb-2">Search by Name:</div>
+            <div className="relative">
+              <input
+                type="text"
+                value={nameFilter}
+                onChange={(e) => setNameFilter(e.target.value)}
+                placeholder="Search player name..."
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {nameFilter && (
+                <button
+                  onClick={() => setNameFilter('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            {nameFilter && filteredPlayers.length === 0 && (
+              <p className="text-sm text-gray-500 mt-1">
+                No players found matching "{nameFilter}"
+              </p>
+            )}
+          </div>
           
           <div className="mb-4">
             <div className="font-semibold mb-2">Position Filter:</div>
@@ -517,27 +556,29 @@ const App = () => {
                 </div>
                 
                 <div className="max-h-48 overflow-y-auto">
-                  {manager.players.map(player => (
-                    <div key={player.id} className="flex items-center py-1 border-t gap-2">
-                      <img 
-                        src={player.image}
-                        alt={player.name}
-                        className="w-8 h-8 rounded-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/face.svg';
-                        }}
-                      />
-                      <div className="flex-1">
-                        <span className="text-xs bg-gray-200 px-1 rounded">{player.position}</span> {player.name}
+                  {manager.players
+                    .sort((a, b) => getPositionOrder(a.position) - getPositionOrder(b.position))
+                    .map(player => (
+                      <div key={player.id} className="flex items-center py-1 border-t gap-2">
+                        <img 
+                          src={player.image}
+                          alt={player.name}
+                          className="w-8 h-8 rounded-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/face.svg';
+                          }}
+                        />
+                        <div className="flex-1">
+                          <span className="text-xs bg-gray-200 px-1 rounded">{player.position}</span> {player.name}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className={`w-5 h-5 flex items-center justify-center text-xs rounded text-white ${getBadgeColor(player.grade)}`}>
+                            {player.grade}
+                          </span>
+                          <span>£{player.price}m</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <span className={`w-5 h-5 flex items-center justify-center text-xs rounded text-white ${getBadgeColor(player.grade)}`}>
-                          {player.grade}
-                        </span>
-                        <span>£{player.price}m</span>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             ))}
