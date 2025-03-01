@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 
+interface Player {
+  id: number;
+  name: string;
+  position: string;
+  grade: string;
+  price: number;
+  image: string;
+  selected: boolean;
+}
+
 const AlertModal = ({ message, onClose }: { message: string; onClose: () => void }) => (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
     <div className="bg-white rounded-lg p-6 max-w-md w-full animate-fade-in">
@@ -25,24 +35,24 @@ const AlertModal = ({ message, onClose }: { message: string; onClose: () => void
 );
 
 const App = () => {
-  const [players, setPlayers] = useState([]);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [managers, setManagers] = useState([
     { 
       id: 1, 
       name: 'Randy', 
       budget: 110,
-      players: [],
+      players: [] as Player[],
       image: '/manager_randy.png' 
     },
     { 
       id: 2, 
       name: 'Ilham', 
       budget: 110,
-      players: [],
+      players: [] as Player[],
       image: '/manager_ilham.png'
     },
-    { id: 3, name: 'APH', budget: 110, players: [], image: '/manager_aph.png' },
-    { id: 4, name: 'Darfat', budget: 110, players: [], image: '/manager_darfat.png' }
+    { id: 3, name: 'APH', budget: 110, players: [] as Player[], image: '/manager_aph.png' },
+    { id: 4, name: 'Darfat', budget: 110, players: [] as Player[], image: '/manager_darfat.png' }
   ]);
   const [currentManager, setCurrentManager] = useState(0);
   const [draftStarted, setDraftStarted] = useState(false);
@@ -62,10 +72,30 @@ const App = () => {
   const [currentRound, setCurrentRound] = useState(0);
   const [maxPrice, setMaxPrice] = useState(11);
   const [nameFilter, setNameFilter] = useState('');
+  const [timeLeft, setTimeLeft] = useState<number>(60);
+  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     loadPlayersFromCSV();
   }, []);
+
+  useEffect(() => {
+    if (draftStarted && timeLeft > 0) {
+      const interval = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1000);
+      setTimerInterval(interval);
+      
+      return () => clearInterval(interval);
+    } else if (timeLeft === 0) {
+      skipTurn();
+    }
+  }, [draftStarted, timeLeft]);
+
+  useEffect(() => {
+    setTimeLeft(60);
+    if (timerInterval) clearInterval(timerInterval);
+  }, [currentManager]);
 
   const loadPlayersFromCSV = async () => {
     try {
@@ -76,7 +106,6 @@ const App = () => {
       }
 
       const csvText = await response.text();
-      
 
       Papa.parse(csvText, {
         header: true,
@@ -84,8 +113,7 @@ const App = () => {
         skipEmptyLines: 'greedy',
         transformHeader: (header) => header.trim(),
         transform: (value) => value.trim(),
-        complete: (results) => {
-
+        complete: (results: Papa.ParseResult<any>) => {
           if (results.errors.length > 0) {
             console.error('Parsing errors:', results.errors);
           }
@@ -124,20 +152,20 @@ const App = () => {
     }
   };
 
-  const selectPlayer = (playerId) => {
+  const selectPlayer = (playerId: number) => {
     if (!draftStarted) return;
     
     const player = players.find(p => p.id === playerId);
+    if (!player) return;
+    
     const manager = managers[currentManager];
     
-    // Budget check
     if (player.price > manager.budget) {
       setAlertMessage(`${manager.name} needs £${player.price - manager.budget}m more to buy ${player.name}`);
       setShowAlert(true);
       return;
     }
     
-    // Position limit check
     const positionCounts = {
       'GK': getPlayerCountByPosition(manager.players, 'GK'),
       'DEF': getPlayerCountByPosition(manager.players, 'DEF'),
@@ -158,19 +186,16 @@ const App = () => {
       return;
     }
     
-    // Check if manager has reached 17 players
     if (manager.players.length >= 17) {
       setAlertMessage(`${manager.name} already has the maximum of 17 players!`);
       setShowAlert(true);
       return;
     }
     
-    // Update player selection status
     const updatedPlayers = players.map(p => 
       p.id === playerId ? { ...p, selected: true } : p
     );
     
-    // Update manager budget and add player to manager's team
     const updatedManagers = managers.map((m, index) => {
       if (index === currentManager) {
         return {
@@ -182,12 +207,12 @@ const App = () => {
       return m;
     });
     
-    // Update draft history
     setDraftHistory(prev => [
       ...prev,
       {
         manager: managers[currentManager].name,
         pickNumber: prev.length + 1,
+        pickCount: prev.length + 1,
         player: player.name,
         position: player.position
       }
@@ -196,81 +221,9 @@ const App = () => {
     setPlayers(updatedPlayers);
     setManagers(updatedManagers);
 
-    // Calculate next manager based on draft mode
     if (draftMode === 'linear') {
       setCurrentManager((prev) => (prev + 1) % 4);
     } else {
-      // Snake draft logic
-      const totalPicks = draftHistory.length + 1; // Include current pick
-      const round = Math.floor(totalPicks / 4);
-      const isReverseRound = round % 2 === 1;
-      
-      if (isReverseRound) {
-        // Reverse order (3→2→1→0)
-        const position = totalPicks % 4;
-        if (position === 0) {
-          setCurrentManager(0); // Start next round
-        } else {
-          setCurrentManager(3 - position);
-        }
-      } else {
-        // Forward order (0→1→2→3)
-        const position = totalPicks % 4;
-        if (position === 0) {
-          setCurrentManager(3); // Start next round
-        } else {
-          setCurrentManager(position);
-        }
-      }
-    }
-  };
-
-  const getPlayerCountByPosition = (managerPlayers, position) => {
-    return managerPlayers.filter(p => p.position === position).length;
-  };
-
-  const getBadgeColor = (grade) => {
-    switch(grade) {
-      case 'A+': return 'bg-purple-600';
-      case 'A': return 'bg-green-600';
-      case 'B': return 'bg-green-400';
-      case 'C': return 'bg-yellow-300';
-      case 'D': return 'bg-orange-300';
-      case 'E': return 'bg-red-300';
-      case 'F': return 'bg-red-500';
-      default: return 'bg-gray-400';
-    }
-  };
-
-  // Filter players based on both position and grade filters
-  const filteredPlayers = players.filter(p => {
-    const positionMatch = positionFilter === 'All' || p.position === positionFilter;
-    const gradeMatch = gradeFilter === 'All' || p.grade === gradeFilter;
-    const priceMatch = p.price <= maxPrice;
-    const nameMatch = p.name.toLowerCase().includes(nameFilter.toLowerCase());
-    return !p.selected && positionMatch && gradeMatch && priceMatch && nameMatch;
-  });
-
-  // Add a function to handle skip turn
-  const skipTurn = () => {
-    if (!draftStarted) return;
-
-    // Add to draft history
-    setDraftHistory(prev => [
-      ...prev,
-      {
-        manager: managers[currentManager].name,
-        pickNumber: prev.length + 1,
-        player: "SKIPPED",
-        position: "-"
-      }
-    ]);
-
-    // Move to next manager (using same logic as selectPlayer)
-    if (draftMode === 'linear') {
-      setCurrentManager((prev) => (prev + 1) % 4);
-    } else {
-      // Snake draft logic
       const totalPicks = draftHistory.length + 1;
       const round = Math.floor(totalPicks / 4);
       const isReverseRound = round % 2 === 1;
@@ -291,9 +244,76 @@ const App = () => {
         }
       }
     }
+
+    setTimeLeft(60);
   };
 
-  // Add this helper function to determine position order
+  const getPlayerCountByPosition = (managerPlayers: Player[], position: string) => {
+    return managerPlayers.filter(p => p.position === position).length;
+  };
+
+  const getBadgeColor = (grade: string) => {
+    switch(grade) {
+      case 'A+': return 'bg-purple-600';
+      case 'A': return 'bg-green-600';
+      case 'B': return 'bg-green-400';
+      case 'C': return 'bg-yellow-300';
+      case 'D': return 'bg-orange-300';
+      case 'E': return 'bg-red-300';
+      case 'F': return 'bg-red-500';
+      default: return 'bg-gray-400';
+    }
+  };
+
+  const filteredPlayers = players.filter(p => {
+    const positionMatch = positionFilter === 'All' || p.position === positionFilter;
+    const gradeMatch = gradeFilter === 'All' || p.grade === gradeFilter;
+    const priceMatch = p.price <= maxPrice;
+    const nameMatch = p.name.toLowerCase().includes(nameFilter.toLowerCase());
+    return !p.selected && positionMatch && gradeMatch && priceMatch && nameMatch;
+  });
+
+  const skipTurn = () => {
+    if (!draftStarted) return;
+
+    setDraftHistory(prev => [
+      ...prev,
+      {
+        manager: managers[currentManager].name,
+        pickNumber: prev.length + 1,
+        pickCount: prev.length + 1,
+        player: "SKIPPED",
+        position: "-"
+      }
+    ]);
+
+    if (draftMode === 'linear') {
+      setCurrentManager((prev) => (prev + 1) % 4);
+    } else {
+      const totalPicks = draftHistory.length + 1;
+      const round = Math.floor(totalPicks / 4);
+      const isReverseRound = round % 2 === 1;
+      
+      if (isReverseRound) {
+        const position = totalPicks % 4;
+        if (position === 0) {
+          setCurrentManager(0);
+        } else {
+          setCurrentManager(3 - position);
+        }
+      } else {
+        const position = totalPicks % 4;
+        if (position === 0) {
+          setCurrentManager(3);
+        } else {
+          setCurrentManager(position);
+        }
+      }
+    }
+
+    setTimeLeft(60);
+  };
+
   const getPositionOrder = (position: string) => {
     switch (position) {
       case 'GK': return 0;
@@ -304,11 +324,9 @@ const App = () => {
     }
   };
 
-  // Add this helper function to group and sort players
   const groupAndSortPlayers = (players: Player[]) => {
     const positionOrder = ['GK', 'DEF', 'MID', 'FWD'];
     
-    // Group players by position
     const grouped = players.reduce((acc, player) => {
       if (!acc[player.position]) {
         acc[player.position] = [];
@@ -317,7 +335,6 @@ const App = () => {
       return acc;
     }, {} as Record<string, Player[]>);
 
-    // Sort players by name within each position
     Object.values(grouped).forEach(group => {
       group.sort((a, b) => a.name.localeCompare(b.name));
     });
@@ -381,7 +398,7 @@ const App = () => {
             onClick={() => {
               setDraftStarted(true);
               setCurrentRound(0);
-              setCurrentManager(0); // Start with first manager
+              setCurrentManager(0);
             }}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
@@ -414,13 +431,42 @@ const App = () => {
               </div>
             </div>
             
-            {/* Add Skip Turn button */}
-            <button
-              onClick={skipTurn}
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-            >
-              Skip Turn
-            </button>
+            <div className="flex items-center gap-4">
+              <div className="relative w-16 h-16">
+                <svg className="w-full h-full" viewBox="0 0 100 100">
+                  <circle
+                    className="text-gray-200"
+                    strokeWidth="8"
+                    stroke="currentColor"
+                    fill="transparent"
+                    r="40"
+                    cx="50"
+                    cy="50"
+                  />
+                  <circle
+                    className={`text-${timeLeft <= 10 ? 'red-500' : 'blue-500'}`}
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    stroke="currentColor"
+                    fill="transparent"
+                    r="40"
+                    cx="50"
+                    cy="50"
+                    strokeDasharray={`${(timeLeft / 60) * 251} 251`}
+                    transform="rotate(-90 50 50)"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center font-bold">
+                  {timeLeft}
+                </div>
+              </div>
+              <button
+                onClick={skipTurn}
+                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+              >
+                Skip Turn
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -486,10 +532,10 @@ const App = () => {
               <div className="font-semibold mb-2">Maximum Price:</div>
               <div className="space-y-2">
                 <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-600 w-12">£3.0m</span>
+                  <span className="text-sm text-gray-600 w-12">£0.0m</span>
                   <input
                     type="range"
-                    min="3"
+                    min="0"
                     max="11"
                     step="0.5"
                     value={maxPrice}
