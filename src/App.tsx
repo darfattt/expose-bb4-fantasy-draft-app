@@ -353,7 +353,8 @@ const App = () => {
           onClose={() => setShowAlert(false)}
         />
       )}
-      <h1 className="text-3xl font-bold mb-4">Expose BB.4.0 Fantasy Draft App</h1>
+      <h1 className="text-3xl font-bold mb-4">Expose BB.4.0 Fantasy Draft Application</h1>
+     
       
       {!draftStarted && (
         <div className="mb-4">
