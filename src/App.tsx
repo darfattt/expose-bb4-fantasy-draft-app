@@ -30,19 +30,19 @@ const App = () => {
     { 
       id: 1, 
       name: 'Randy', 
-      budget: 100, 
+      budget: 110,
       players: [],
       image: '/manager_randy.png' 
     },
     { 
       id: 2, 
       name: 'Ilham', 
-      budget: 100, 
+      budget: 110,
       players: [],
       image: '/manager_ilham.png'
     },
-    { id: 3, name: 'APH', budget: 100, players: [], image: '/manager_aph.png' },
-    { id: 4, name: 'Darfat', budget: 100, players: [], image: '/manager_darfat.png' }
+    { id: 3, name: 'APH', budget: 110, players: [], image: '/manager_aph.png' },
+    { id: 4, name: 'Darfat', budget: 110, players: [], image: '/manager_darfat.png' }
   ]);
   const [currentManager, setCurrentManager] = useState(0);
   const [draftStarted, setDraftStarted] = useState(false);
@@ -60,6 +60,7 @@ const App = () => {
   }>>([]);
   const [draftMode, setDraftMode] = useState<'linear' | 'snake'>('linear');
   const [currentRound, setCurrentRound] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(11);
 
   useEffect(() => {
     loadPlayersFromCSV();
@@ -156,9 +157,9 @@ const App = () => {
       return;
     }
     
-    // Check if manager has reached 15 players
-    if (manager.players.length >= 15) {
-      setAlertMessage(`${manager.name} already has the maximum of 15 players!`);
+    // Check if manager has reached 17 players
+    if (manager.players.length >= 17) {
+      setAlertMessage(`${manager.name} already has the maximum of 17 players!`);
       setShowAlert(true);
       return;
     }
@@ -244,8 +245,51 @@ const App = () => {
   const filteredPlayers = players.filter(p => {
     const positionMatch = positionFilter === 'All' || p.position === positionFilter;
     const gradeMatch = gradeFilter === 'All' || p.grade === gradeFilter;
-    return !p.selected && positionMatch && gradeMatch;
+    const priceMatch = p.price <= maxPrice;
+    return !p.selected && positionMatch && gradeMatch && priceMatch;
   });
+
+  // Add a function to handle skip turn
+  const skipTurn = () => {
+    if (!draftStarted) return;
+
+    // Add to draft history
+    setDraftHistory(prev => [
+      ...prev,
+      {
+        manager: managers[currentManager].name,
+        pickNumber: prev.length + 1,
+        player: "SKIPPED",
+        position: "-"
+      }
+    ]);
+
+    // Move to next manager (using same logic as selectPlayer)
+    if (draftMode === 'linear') {
+      setCurrentManager((prev) => (prev + 1) % 4);
+    } else {
+      // Snake draft logic
+      const totalPicks = draftHistory.length + 1;
+      const round = Math.floor(totalPicks / 4);
+      const isReverseRound = round % 2 === 1;
+      
+      if (isReverseRound) {
+        const position = totalPicks % 4;
+        if (position === 0) {
+          setCurrentManager(0);
+        } else {
+          setCurrentManager(3 - position);
+        }
+      } else {
+        const position = totalPicks % 4;
+        if (position === 0) {
+          setCurrentManager(3);
+        } else {
+          setCurrentManager(position);
+        }
+      }
+    }
+  };
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
@@ -308,26 +352,38 @@ const App = () => {
           </button>
         </div>
       ) : (
-        <div className="mb-6 bg-blue-100 p-4 rounded flex items-center gap-4">
-          <img 
-            src={managers[currentManager].image}
-            alt={managers[currentManager].name}
-            className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = '/default-manager.svg';
-            }}
-          />
-          <div>
-            <h2 className="text-xl font-semibold">Current Drafter</h2>
-            <p className="text-lg">{managers[currentManager].name}</p>
-            <div className="flex gap-4 mt-1">
-              <span className="text-sm bg-blue-200 px-2 py-1 rounded">
-                Budget: £{managers[currentManager].budget}m
-              </span>
-              <span className="text-sm bg-blue-200 px-2 py-1 rounded">
-                Players: {managers[currentManager].players.length}/15
-              </span>
+        <div className="mb-6 bg-blue-100 p-4 rounded">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <img 
+                src={managers[currentManager].image}
+                alt={managers[currentManager].name}
+                className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/default-manager.svg';
+                }}
+              />
+              <div>
+                <h2 className="text-xl font-semibold">Current Drafter</h2>
+                <p className="text-lg">{managers[currentManager].name}</p>
+                <div className="flex gap-4 mt-1">
+                  <span className="text-sm bg-blue-200 px-2 py-1 rounded">
+                    Budget: £{managers[currentManager].budget}m
+                  </span>
+                  <span className="text-sm bg-blue-200 px-2 py-1 rounded">
+                    Players: {managers[currentManager].players.length}/17
+                  </span>
+                </div>
+              </div>
             </div>
+            
+            {/* Add Skip Turn button */}
+            <button
+              onClick={skipTurn}
+              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+            >
+              Skip Turn
+            </button>
           </div>
         </div>
       )}
@@ -361,6 +417,28 @@ const App = () => {
                   {grade}
                 </button>
               ))}
+            </div>
+            
+            <div className="font-semibold mb-4">
+              <div className="font-semibold mb-2">Maximum Price:</div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-gray-600 w-12">£3.0m</span>
+                  <input
+                    type="range"
+                    min="3"
+                    max="11"
+                    step="0.5"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(parseFloat(e.target.value))}
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  />
+                  <span className="text-sm text-gray-600 w-16">£{maxPrice}m</span>
+                </div>
+                <div className="text-sm text-gray-600 text-center">
+                  Showing players up to £{maxPrice}m
+                </div>
+              </div>
             </div>
           </div>
           
@@ -428,7 +506,7 @@ const App = () => {
                 
                 <div className="flex justify-between items-center mb-2">
                   <div className="text-sm">
-                    Players: {manager.players.length}/15
+                    Players: {manager.players.length}/17
                   </div>
                   <div className="text-sm">
                     {getPlayerCountByPosition(manager.players, 'GK')} GK | 
@@ -468,72 +546,48 @@ const App = () => {
       </div>
       
       <div className="mt-6 p-4 border rounded bg-gray-50">
-        <h2 className="text-xl font-bold mb-2">Player Grade Price Ranges</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <div className="flex items-center gap-2">
-            <span className={`w-6 h-6 flex items-center justify-center rounded text-white ${getBadgeColor('A+')}`}>A+</span>
-            <span>£19.0m - £21.5m</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className={`w-6 h-6 flex items-center justify-center rounded text-white ${getBadgeColor('A')}`}>A</span>
-            <span>£14.0m - £18.0m</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className={`w-6 h-6 flex items-center justify-center rounded text-white ${getBadgeColor('B')}`}>B</span>
-            <span>£10.0m - £13.0m</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className={`w-6 h-6 flex items-center justify-center rounded text-white ${getBadgeColor('C')}`}>C</span>
-            <span>£7.0m - £9.0m</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className={`w-6 h-6 flex items-center justify-center rounded text-white ${getBadgeColor('D')}`}>D</span>
-            <span>£5.0m - £6.0m</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className={`w-6 h-6 flex items-center justify-center rounded text-white ${getBadgeColor('E')}`}>E</span>
-            <span>£4.0m - £5.0m</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className={`w-6 h-6 flex items-center justify-center rounded text-white ${getBadgeColor('F')}`}>F</span>
-            <span>£4.0m</span>
-          </div>
+        <h2 className="text-xl font-bold mb-2">Position Price Guidelines</h2>
+        <div className="space-y-2">
+          <p className="text-sm text-gray-700">
+            <span className="font-semibold">Defenders (DEF):</span> Budget-friendly options from £4.0m up to premium picks at £6.5m
+          </p>
+          <p className="text-sm text-gray-700">
+            <span className="font-semibold">Midfielders (MID):</span> Range from £5.0m for rotation options to £10.0m for elite playmakers
+          </p>
+          <p className="text-sm text-gray-700">
+            <span className="font-semibold">Forwards (FWD):</span> Starting at £6.0m for squad players up to £11.0m for premium strikers
+          </p>
         </div>
-        <p className="mt-2 text-sm text-gray-600">
-          Note: Forward A/A+ prices have a £1.5m premium. Goalkeeper prices have a £1.5m discount (minimum £4.0m).
+        <p className="mt-4 text-sm text-gray-600">
+          Squad Requirements: 1 GK, 5 DEF, 5 MID, 4 FWD (17 total players)
         </p>
         <p className="mt-1 text-sm text-gray-600">
-          Squad Requirements: 1 GK, 5 DEF, 5 MID, 4 FWD (15 total players)
-        </p>
-        <p className="mt-1 text-sm text-gray-600">
-          Each manager has a £100m budget. Players must be selected according to position limits.
+          Each manager has a £110m budget. Players must be selected according to position limits.
         </p>
       </div>
       
       <div className="mt-6 p-4 border rounded bg-gray-50">
         <h2 className="text-xl font-bold mb-4">Draft History</h2>
         <div className="space-y-2">
-          {draftHistory.map((entry, index) => {
-            const ordinal = entry.pickCount === 1 ? 'st' : 
-                           entry.pickCount === 2 ? 'nd' :
-                           entry.pickCount === 3 ? 'rd' : 'th';
-                             
-            return (
-              <div 
-                key={index}
-                className="p-2 bg-white rounded border flex items-center gap-2 text-sm"
-              >
-                <span className="font-mono text-gray-500 w-12">#{entry.pickNumber}</span>
-                <span className="font-semibold min-w-[100px]">{entry.manager}</span>
+          {draftHistory.map((entry, index) => (
+            <div 
+              key={index}
+              className={`p-2 rounded border flex items-center gap-2 text-sm ${
+                entry.player === "SKIPPED" ? 'bg-gray-50' : 'bg-white'
+              }`}
+            >
+              <span className="font-mono text-gray-500 w-12">#{entry.pickNumber}</span>
+              <span className="font-semibold min-w-[100px]">{entry.manager}</span>
+              {entry.player === "SKIPPED" ? (
+                <span className="text-gray-500 italic">Skipped turn</span>
+              ) : (
                 <span className="text-gray-600">
-                  {entry.pickCount}
-                  {ordinal} pick: 
                   <span className="bg-gray-200 px-1 rounded mx-2">{entry.position}</span>
                   {entry.player}
                 </span>
-              </div>
-            );
-          })}
+              )}
+            </div>
+          ))}
           {draftHistory.length === 0 && (
             <div className="text-gray-500 text-center py-4">
               No draft picks yet
