@@ -304,6 +304,30 @@ const App = () => {
     }
   };
 
+  // Add this helper function to group and sort players
+  const groupAndSortPlayers = (players: Player[]) => {
+    const positionOrder = ['GK', 'DEF', 'MID', 'FWD'];
+    
+    // Group players by position
+    const grouped = players.reduce((acc, player) => {
+      if (!acc[player.position]) {
+        acc[player.position] = [];
+      }
+      acc[player.position].push(player);
+      return acc;
+    }, {} as Record<string, Player[]>);
+
+    // Sort players by name within each position
+    Object.values(grouped).forEach(group => {
+      group.sort((a, b) => a.name.localeCompare(b.name));
+    });
+
+    return positionOrder.filter(pos => grouped[pos]?.length > 0).map(pos => ({
+      position: pos,
+      players: grouped[pos]
+    }));
+  };
+
   return (
     <div className="p-4 max-w-6xl mx-auto">
       {showAlert && (
@@ -483,31 +507,38 @@ const App = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {filteredPlayers.length > 0 ? (
-              filteredPlayers.map(player => (
-                <div 
-                  key={player.id} 
-                  className="border rounded p-3 flex items-center hover:bg-gray-50 cursor-pointer gap-4"
-                  onClick={() => selectPlayer(player.id)}
-                >
-                  <img 
-                    src={player.image} 
-                    alt={player.name}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/face.svg';
-                    }}
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{player.name}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded text-white ${getBadgeColor(player.grade)}`}>
-                        {player.grade}
-                      </span>
-                    </div>
-                    <div className="text-gray-600 text-sm">{player.position}</div>
+              groupAndSortPlayers(filteredPlayers).map(group => (
+                <React.Fragment key={group.position}>
+                  <div className="col-span-2 bg-gray-100 py-2 px-4 font-semibold text-gray-700 rounded mt-2 first:mt-0">
+                    {group.position}
                   </div>
-                  <div className="text-lg font-bold">£{player.price}m</div>
-                </div>
+                  {group.players.map(player => (
+                    <div 
+                      key={player.id} 
+                      className="border rounded p-3 flex items-center hover:bg-gray-50 cursor-pointer gap-4"
+                      onClick={() => selectPlayer(player.id)}
+                    >
+                      <img 
+                        src={player.image} 
+                        alt={player.name}
+                        className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/face.svg';
+                        }}
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">{player.name}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded text-white ${getBadgeColor(player.grade)}`}>
+                            {player.grade}
+                          </span>
+                        </div>
+                        <div className="text-gray-600 text-sm">{player.position}</div>
+                      </div>
+                      <div className="text-lg font-bold">£{player.price}m</div>
+                    </div>
+                  ))}
+                </React.Fragment>
               ))
             ) : (
               <div className="col-span-2 p-4 text-center text-gray-500">
