@@ -46,7 +46,7 @@ const App = () => {
     },
     { 
       id: 2, 
-      name: 'Ilham', 
+      name: 'Bob9', 
       budget: 110,
       players: [] as Player[],
       image: '/manager_ilham.png'
