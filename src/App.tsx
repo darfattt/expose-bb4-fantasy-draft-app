@@ -53,7 +53,7 @@ const App = () => {
       players: [] as Player[],
       image: '/manager_ilham.png'
     },
-    { id: 3, name: 'APH', budget: 101, spent: 0, players: [] as Player[], image: '/manager_aph.png' },
+    { id: 3, name: 'Apeha10', budget: 101, spent: 0, players: [] as Player[], image: '/manager_aph.png' },
     { id: 4, name: 'Darfat', budget: 101, spent: 0, players: [] as Player[], image: '/manager_darfat.png' }
   ]);
   const [currentManager, setCurrentManager] = useState(0);
@@ -183,7 +183,7 @@ const App = () => {
         'MID': 5,
         'FWD': 5
       },
-      'APH': {
+      'Apeha10': {
         'GK': 1,
         'DEF': 6,
         'MID': 5,
@@ -721,7 +721,7 @@ const App = () => {
         </p>
         <ul className="mt-2 text-sm text-gray-600 space-y-1">
           <li>• Darfat: 1 GK, 6 DEF, 4 MID , 5 FWD (16 total players) + Manager</li>
-          <li>• APH: 1 GK, 6 DEF, 5 MID, 4 FWD (16 total players) + Manager</li>
+          <li>• Apeha10: 1 GK, 6 DEF, 5 MID, 4 FWD (16 total players) + Manager</li>
           <li>• Bob9: 1 GK, 6 DEF, 5 MID, 4 FWD (16 total players) + Manager</li>
           <li>• Randy: 1 GK, 6 DEF, 5 MID, 4 FWD (16 total players) + Manager</li>
         </ul>
