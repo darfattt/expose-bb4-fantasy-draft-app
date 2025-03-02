@@ -103,7 +103,7 @@ const App = () => {
   const loadPlayersFromCSV = async () => {
     try {
       const response = await fetch('/player-list.csv');
-      
+      console.log({response})
       if (!response.ok) {
         throw new Error(`Failed to fetch CSV: ${response.status} ${response.statusText}`);
       }
@@ -176,15 +176,36 @@ const App = () => {
       'FWD': getPlayerCountByPosition(manager.players, 'FWD')
     };
     
-    const positionLimits = {
-      'GK': 1,
-      'DEF': 5,
-      'MID': 5,
-      'FWD': 6
+    const managerPositionLimits = {
+      'Darfat': {
+        'GK': 1,
+        'DEF': 6,
+        'MID': 5,
+        'FWD': 5
+      },
+      'APH': {
+        'GK': 1,
+        'DEF': 6,
+        'MID': 5,
+        'FWD': 5
+      },
+      'Bob9': {
+        'GK': 1,
+        'DEF': 6,
+        'MID': 5,
+        'FWD': 5
+      },
+      'Randy': {
+        'GK': 1,
+        'DEF': 6,
+        'MID': 5,
+        'FWD': 5
+      }
     };
     
-    if (positionCounts[player.position] >= positionLimits[player.position]) {
-      setAlertMessage(`${manager.name} can't have more than ${positionLimits[player.position]} ${player.position} players`);
+    const managerLimits = managerPositionLimits[manager.name];
+    if (positionCounts[player.position] >= managerLimits[player.position]) {
+      setAlertMessage(`${manager.name} can't have more than ${managerLimits[player.position]} ${player.position} players`);
       setShowAlert(true);
       return;
     }
@@ -696,8 +717,14 @@ const App = () => {
           </p>
         </div>
         <p className="mt-4 text-sm text-gray-600">
-          Squad Requirements: 1 GK, 5 DEF, 5 MID, 6 FWD (17 total players)
+          Squad Requirements per Manager:
         </p>
+        <ul className="mt-2 text-sm text-gray-600 space-y-1">
+          <li>• Darfat: 1 GK, 6 DEF, 4 MID , 5 FWD (16 total players) + Manager</li>
+          <li>• APH: 1 GK, 6 DEF, 5 MID, 4 FWD (16 total players) + Manager</li>
+          <li>• Bob9: 1 GK, 6 DEF, 5 MID, 4 FWD (16 total players) + Manager</li>
+          <li>• Randy: 1 GK, 6 DEF, 5 MID, 4 FWD (16 total players) + Manager</li>
+        </ul>
         <p className="mt-1 text-sm text-gray-600">
           Each manager has a £101m budget. Players must be selected according to position limits.
         </p>

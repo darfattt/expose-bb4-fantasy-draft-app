@@ -1,70 +1,70 @@
-Status,Position,Number,Name,Grade,Price
-Listed,GK,1,Rizki,F,4.0
-Listed,GK,2,Zay,F,4.0
-Listed,GK,3,Kiper 3,F,4.0
-Listed,GK,4,Kiper 4,F,4.0
-Listed,FWD,5,Apeha10,F,0
-Listed,FWD,6,Bob9,F,0.0
-Listed,MID,7,Big T,F,4.0
-Listed,DEF,8,Chand,F,4.0
-Listed,DEF,9,Popon,F,4.0
-Listed,FWD,10,Isal,F,4.0
-Listed,MID,11,Fadzri,F,4.0
-Listed,DEF,12,Fadhilinho,F,4.0
-Listed,DEF,13,Sultan,F,4.0
-Listed,MID,14,Maul,F,4.0
-Listed,FWD,15,Jemaat Prioritas,F,4.0
-Listed,MID,16,Rangga Bewwok,F,4.0
-Listed,FWD,17,Arif,F,4.0
-Listed,DEF,18,Jack,F,4.0
-Listed,FWD,19,"Adi ""Blade"" Setiana",F,4.0
-Listed,DEF,20,Adiyasa,F,4.0
-Listed,DEF,21,Denie,F,4.0
-Listed,DEF,22,Panji,F,4.0
-Listed,FWD,23,Robbi,F,4.0
-Listed,MID,24,Taufik P,F,4.0
-Listed,DEF,25,AdeS,F,4.0
-Listed,FWD,26,Tri Wahyudi,A+,11.0
-Listed,DEF,27,Dullnip,F,4.0
-Listed,DEF,28,Ajay,F,4.0
-Listed,MID,29,Hilmi Daffa,F,4.0
-Listed,MID,30,Jerry,F,4.0
-Listed,DEF,31,Handrian,F,4.0
-Listed,MID,32,Sena,F,4.0
-Listed,FWD,33,Randy,F,0.0
-Listed,FWD,34,Insan Taufik,F,4.0
-Listed,MID,35,Caswadi,F,4.0
-Listed,FWD,36,Baron,F,4.0
-Listed,FWD,37,Firhanda,F,4.0
-Listed,DEF,38,Syarif,F,4.0
-Listed,MID,39,Ruben,F,4.0
-Listed,MID,40,Ibey,F,4.0
-Listed,MID,41,Darfat,F,0.0
-Listed,MID,42,Syafik,F,4.0
-Listed,MID,43,Dodets,F,4.0
-Listed,FWD,44,Agoy,F,4.0
-Listed,DEF,4.05,Eja,F,4.0
-Listed,MID,46,Badru,F,4.0
-Listed,MID,47,Hendra Gotze,F,4.0
-Listed,MID,48,Rivan,F,4.0
-Listed,DEF,4.09,Raddy,F,4.0
-Listed,FWD,50,Norman,F,4.0
-Listed,DEF,51,Ahmad Nurizki,F,4.0
-Listed,DEF,52,Habib,F,4.0
-Listed,MID,53,Fariz,F,4.0
-Listed,DEF,54,Freddy,F,4.0
-Listed,FWD,55,Erwan HS,F,4.0
-Listed,FWD,56,Aziz,F,4.0
-Listed,FWD,57,Abdillah,F,4.0
-Listed,DEF,58,Hendrian,F,4.0
-Listed,DEF,59,Ghifaris V.,F,4.0
-Listed,FWD,60,Yuris Da Silva,F,4.0
-WL,FWD,61,Beny,F,4.0
-WL,DEF,62,Ajuy,F,4.0
-WL,MID,63,Faqih,F,4.0
-WL,MID,64,Yamin Amzah,A,9.0
-WL,FWD,65,Fikri,A+,11.0
-WL,MID,66,Janu,B,8.0
-WL,FWD,67,Dhika,C,7.5
-WL,DEF,68,Andhika,D,6.0
-WL,DEF,69,Dinda,E,5.0
+Status,Position,Number,Name,Grade,Price,,,,,,,
+Listed,DEF,8,Chand,E,4.0,,,,,DEF,,
+Listed,DEF,13,Sultan,E,4.0,,,,,0,4,E
+Listed,DEF,44,Eja,E,4.0,,,,,,,
+Listed,DEF,50,Ahmad Nurizki,E,4.0,,,,,,,
+Listed,DEF,58,Ghifaris V.,E,4.0,,,,,,,
+Listed,DEF,20,Adiyasa,D,4.5,,,,,,,
+Listed,DEF,28,Ajay,D,4.5,,,,,,,
+WL,DEF,61,Ajuy,D,4.5,,,,,,,
+WL,DEF,67,Andhika,D,4.5,,,,,,,
+WL,DEF,68,Dinda,D,4.5,,,,,,,
+Listed,DEF,9,Popon,C,5.0,,,,,,,
+Listed,DEF,27,Dullnip,C,5.0,,,,,,,
+Listed,DEF,31,Handrian,C,5.0,,,,,,,
+Listed,DEF,38,Syarif,C,5.0,,,,,,,
+Listed,DEF,57,Hendrian,C,5.0,,,,,,,
+Listed,DEF,12,Fadhilinho,C,5.5,,,,,,,
+Listed,DEF,18,Jack,C,5.5,,,,,,,
+Listed,DEF,48,Raddy,B,6.0,,,,,,,
+Listed,DEF,51,Habib,B,6.0,,,,,,,
+Listed,DEF,53,Freddy,B,6.0,,,,,,,
+Listed,DEF,21,Denie,B,6.5,,,,,,,
+Listed,DEF,25,AdeS,B,6.5,,,,,,,
+Listed,DEF,22,Panji,A,7.0,,,,,,,
+Listed,FWD,5,Apeha10,F,0,,,,,,,
+Listed,FWD,6,Bob9,F,0,,,,,,,
+Listed,FWD,33,Randy,F,0,,,,,,,
+Listed,FWD,17,Arif,D,6.0,,,,,,,
+Listed,FWD,19,"Adi ""Blade"" Setiana",D,6.0,,,,,,,
+Listed,FWD,49,Norman,D,6.0,,,,,,,
+WL,FWD,60,Beny,D,6.0,,,,,,,
+Listed,FWD,34,Insan Taufik,C,6.5,,,,,,,
+Listed,FWD,43,Agoy,C,6.5,,,,,,,
+Listed,FWD,54,Erwan HS,C,6.5,,,,,,,
+Listed,FWD,23,Robbi,C,7.0,,,,,,,
+Listed,FWD,56,Abdillah,C,7.0,,,,,,,
+Listed,FWD,37,Firhanda,B,7.5,,,,,,,
+Listed,FWD,59,Yuris Da Silva,B,7.5,,,,,,,
+Listed,FWD,15,Jemaat Prioritas,B,8.0,,,,,,,
+Listed,FWD,55,Aziz,B,8.0,,,,,,,
+WL,FWD,66,Dhika,B,8.0,,,,,,,
+Listed,FWD,10,Isal,A,9.0,,,,,,,
+Listed,FWD,36,Baron,A,9.0,,,,,,,
+Listed,FWD,26,Tri Wahyudi,A+,11.0,,,,,,,
+WL,FWD,64,Fikri,A+,11.0,,,,,,,
+Listed,GK,1,Rizki,C,4.5,,,,,,,
+Listed,GK,2,Zay,C,4.5,,,,,,,
+Listed,GK,3,Fafan,C,4.5,,,,,,,
+Listed,GK,4,GK 4,C,4.5,,,,,,,
+Listed,MID,41,Darfat,F,0,,,,,,,
+Listed,MID,7,Big T,D,6.0,,,,,,,
+Listed,MID,30,Jerry,D,6.0,,,,,,,
+Listed,MID,40,Ibey,D,6.0,,,,,,,
+Listed,MID,47,Rivan,D,6.0,,,,,,,
+WL,MID,63,Yamin Amzah,D,6.0,,,,,,,
+Listed,MID,16,Rangga Bewwok,C,6.5,,,,,,,
+Listed,MID,24,Taufik P,C,6.5,,,,,,,
+Listed,MID,42,Dodets,C,6.5,,,,,,,
+Listed,MID,52,Fariz,C,6.5,,,,,,,
+WL,MID,62,Faqih,C,6.5,,,,,,,
+WL,MID,65,Janu,B,7.0,,,,,,,
+WL,MID,69,Aditya ,B,7.0,,,,,,,
+Listed,MID,14,Maul,B,7.5,,,,,,,
+Listed,MID,39,Ruben,B,7.5,,,,,,,
+Listed,MID,45,Badru,B,7.5,,,,,,,
+Listed,MID,32,Sena,B,8.0,,,,,,,
+Listed,MID,35,Caswadi,B,8.0,,,,,,,
+Listed,MID,46,Hendra Gotze,B,8.0,,,,,,,
+Listed,MID,11,Fadzri,A,8.5,,,,,,,
+Listed,MID,29,Hilmi Daffa,A,8.5,,,,,,,
