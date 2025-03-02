@@ -601,7 +601,7 @@ const App = () => {
                   {group.players.map(player => (
                     <div 
                       key={player.id} 
-                      className="border rounded p-3 flex items-center hover:bg-gray-50 cursor-pointer gap-4"
+                      className="border rounded p-3 flex flex-col md:flex-row items-center hover:bg-gray-50 cursor-pointer gap-4"
                       onClick={() => selectPlayer(player.id)}
                     >
                       <img 
