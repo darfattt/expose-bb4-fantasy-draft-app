@@ -758,14 +758,14 @@ const App = () => {
                   </div>
                 </div>
                 
-                <div className="max-h-48 overflow-y-auto">
+                <div className="max-h-100 overflow-y-auto">
                   {manager.players
                     .sort((a, b) => getPositionOrder(a.position) - getPositionOrder(b.position))
                     .map(player => (
                       <div key={player.id} className="flex items-center py-1 border-t gap-2">
                         <img 
-                          src={player.image}
-                          alt={player.name}
+                        src={`/players/${player.name}.png`}
+                        alt={player.name}
                           className="w-8 h-8 rounded-full object-cover"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = '/face.svg';
