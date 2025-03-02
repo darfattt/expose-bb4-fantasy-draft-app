@@ -252,29 +252,7 @@ const App = () => {
     setPlayers(updatedPlayers);
     setManagers(updatedManagers);
 
-    if (draftMode === 'linear') {
-      setCurrentManager((prev) => (prev + 1) % 4);
-    } else {
-      const totalPicks = draftHistory.length + 1;
-      const round = Math.floor(totalPicks / 4);
-      const isReverseRound = round % 2 === 1;
-      
-      if (isReverseRound) {
-        const position = totalPicks % 4;
-        if (position === 0) {
-          setCurrentManager(0);
-        } else {
-          setCurrentManager(3 - position);
-        }
-      } else {
-        const position = totalPicks % 4;
-        if (position === 0) {
-          setCurrentManager(3);
-        } else {
-          setCurrentManager(position);
-        }
-      }
-    }
+    updateCurrentManager();
 
     setTimeLeft(60);
   };
@@ -304,6 +282,23 @@ const App = () => {
     return !p.selected && positionMatch && gradeMatch && priceMatch && nameMatch;
   });
 
+  const forceSkipTurn = () => {
+
+    setDraftHistory(prev => [
+      ...prev,
+      {
+        manager: 'System',
+        pickNumber: prev.length + 1,
+        pickCount: prev.length + 1,
+        player: "SKIPPED",
+        position: "-"
+      }
+    ]);
+
+    updateCurrentManager();
+
+    setTimeLeft(60);
+  };
   const skipTurn = () => {
     if (!draftStarted) return;
 
@@ -318,29 +313,7 @@ const App = () => {
       }
     ]);
 
-    if (draftMode === 'linear') {
-      setCurrentManager((prev) => (prev + 1) % 4);
-    } else {
-      const totalPicks = draftHistory.length + 1;
-      const round = Math.floor(totalPicks / 4);
-      const isReverseRound = round % 2 === 1;
-      
-      if (isReverseRound) {
-        const position = totalPicks % 4;
-        if (position === 0) {
-          setCurrentManager(0);
-        } else {
-          setCurrentManager(3 - position);
-        }
-      } else {
-        const position = totalPicks % 4;
-        if (position === 0) {
-          setCurrentManager(3);
-        } else {
-          setCurrentManager(position);
-        }
-      }
-    }
+    updateCurrentManager();
 
     setTimeLeft(60);
   };
@@ -376,6 +349,44 @@ const App = () => {
     }));
   };
 
+  const updateCurrentManager = () => {
+    if (draftMode === 'linear') {
+      // Get managers in their proper order
+      const orderedManagers = managers.sort((a, b) => a.order - b.order);
+      // Find current manager's position in order
+      const currentPosition = orderedManagers.findIndex(m => m === managers[currentManager]);
+      // Get next manager in order
+      const nextManager = managers.findIndex(m => 
+        m === orderedManagers[(currentPosition + 1) % 4]
+      );
+      setCurrentManager(nextManager);
+      const totalPicks = draftHistory.length + 1;
+      const round = Math.floor((totalPicks ) / 4); // 0-based round
+      setCurrentRound(round + 1);
+      return;
+    }
+
+    const totalPicks = draftHistory.length + 1;
+    const round = Math.floor((totalPicks - 1) / 4); // 0-based round
+    const position = (totalPicks - 1) % 4; // 0-based position in round
+
+    // Update current round for UI feedback
+    setCurrentRound(round + 1);
+
+    // Get managers in their proper order
+    const orderedManagers = managers.sort((a, b) => a.order - b.order);
+    
+    // Calculate the starting position for this round (0,1,2,3)
+    const roundStartPosition = round % 4;
+    
+    // Calculate the next manager's position
+    const nextPosition = (roundStartPosition + position) % 4;
+    
+    // Find the index in the managers array
+    const nextManager = managers.findIndex(m => m === orderedManagers[nextPosition]);
+    setCurrentManager(nextManager);
+  };
+
   const togglePause = () => {
     setIsPaused((prev) => !prev);
   };
@@ -408,7 +419,7 @@ const App = () => {
                   className="text-blue-600 focus:ring-blue-500 h-4 w-4"
                 />
                 <span className="text-sm text-gray-700">
-                  Linear Order (1-2-3-4 each round)
+                  Linear Order (1 → 2 → 3 → 4 each round)
                 </span>
               </label>
               
@@ -422,7 +433,7 @@ const App = () => {
                   className="text-blue-600 focus:ring-blue-500 h-4 w-4"
                 />
                 <span className="text-sm text-gray-700">
-                  Snake Order (1-2-3-4, 4-3-2-1)
+                  Snake Order (R1: 1→2→3→4, R2: 2→3→4→1, R3: 3→4→1→2, R4: 4→1→2→3)
                 </span>
               </label>
             </div>
@@ -486,8 +497,14 @@ const App = () => {
           <button 
             onClick={() => {
               setDraftStarted(true);
-              setCurrentRound(0);
-              setCurrentManager(0);
+              setCurrentRound(1);
+              // Find the manager with order 1 to start the draft
+              const firstManager = managers.findIndex(m => m.order === 1);
+              setCurrentManager(firstManager);
+              if(draftMode !== 'linear'){
+                console.log('skip turn..');
+                forceSkipTurn();
+              }
             }}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
@@ -509,6 +526,16 @@ const App = () => {
               <div>
                 <h2 className="text-xl font-semibold">Current Drafter</h2>
                 <p className="text-lg">{managers[currentManager].name}</p>
+                {draftMode === 'snake' && (
+                  <p className="text-sm text-gray-600">
+                    Round {currentRound} (starts with {managers.find(m => m.order === (currentRound - 1) % 4 + 1)?.name})
+                  </p>
+                )}
+                {draftMode === 'linear' && (
+                  <p className="text-sm text-gray-600">
+                    Round {currentRound} 
+                  </p>
+                )}
                 <div className="flex gap-4 mt-1">
                   <span className="text-sm bg-blue-200 px-2 py-1 rounded">
                     Budget: £{managers[currentManager].budget}m
@@ -800,6 +827,9 @@ const App = () => {
               }`}
             >
               <span className="font-mono text-gray-500 w-12">#{entry.pickNumber}</span>
+              <span className="text-gray-500 text-sm">
+                (R{Math.floor((entry.pickNumber - 1) / 4) + 1})
+              </span>
               <span className="font-semibold min-w-[100px]">{entry.manager}</span>
               {entry.player === "SKIPPED" ? (
                 <span className="text-gray-500 italic">Skipped turn</span>
