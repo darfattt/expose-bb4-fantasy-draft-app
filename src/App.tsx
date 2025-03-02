@@ -581,7 +581,7 @@ const App = () => {
                       onClick={() => selectPlayer(player.id)}
                     >
                       <img 
-                        src={player.image} 
+                        src={`/players/${player.name}.png`}
                         alt={player.name}
                         className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
                         onError={(e) => {
