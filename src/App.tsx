@@ -40,19 +40,21 @@ const App = () => {
     { 
       id: 1, 
       name: 'Randy', 
-      budget: 110,
+      budget: 101,
+      spent: 0,
       players: [] as Player[],
       image: '/manager_randy.png' 
     },
     { 
       id: 2, 
       name: 'Bob9', 
-      budget: 110,
+      budget: 101,
+      spent: 0,
       players: [] as Player[],
       image: '/manager_ilham.png'
     },
-    { id: 3, name: 'APH', budget: 110, players: [] as Player[], image: '/manager_aph.png' },
-    { id: 4, name: 'Darfat', budget: 110, players: [] as Player[], image: '/manager_darfat.png' }
+    { id: 3, name: 'APH', budget: 101, spent: 0, players: [] as Player[], image: '/manager_aph.png' },
+    { id: 4, name: 'Darfat', budget: 101, spent: 0, players: [] as Player[], image: '/manager_darfat.png' }
   ]);
   const [currentManager, setCurrentManager] = useState(0);
   const [draftStarted, setDraftStarted] = useState(false);
@@ -202,7 +204,8 @@ const App = () => {
         return {
           ...m,
           budget: parseFloat((m.budget - player.price).toFixed(1)),
-          players: [...m.players, player]
+          players: [...m.players, player],
+          spent: m.spent + player.price
         };
       }
       return m;
@@ -632,7 +635,7 @@ const App = () => {
                     <h3 className="font-bold">{manager.name}</h3>
                   </div>
                   <span className={`${manager.budget < 10 ? 'text-red-500' : ''} font-semibold`}>
-                    £{manager.budget}m
+                     £{manager.spent}m / £{manager.budget}m 
                   </span>
                 </div>
                 
@@ -696,7 +699,7 @@ const App = () => {
           Squad Requirements: 1 GK, 5 DEF, 5 MID, 6 FWD (17 total players)
         </p>
         <p className="mt-1 text-sm text-gray-600">
-          Each manager has a £110m budget. Players must be selected according to position limits.
+          Each manager has a £101m budget. Players must be selected according to position limits.
         </p>
       </div>
       
