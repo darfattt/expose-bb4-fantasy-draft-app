@@ -74,13 +74,14 @@ const App = () => {
   const [nameFilter, setNameFilter] = useState('');
   const [timeLeft, setTimeLeft] = useState<number>(60);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
 
   useEffect(() => {
     loadPlayersFromCSV();
   }, []);
 
   useEffect(() => {
-    if (draftStarted && timeLeft > 0) {
+    if (draftStarted && timeLeft > 0 && !isPaused) {
       const interval = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
@@ -90,7 +91,7 @@ const App = () => {
     } else if (timeLeft === 0) {
       skipTurn();
     }
-  }, [draftStarted, timeLeft]);
+  }, [draftStarted, timeLeft, isPaused]);
 
   useEffect(() => {
     setTimeLeft(60);
@@ -177,7 +178,7 @@ const App = () => {
       'GK': 1,
       'DEF': 5,
       'MID': 5,
-      'FWD': 4
+      'FWD': 6
     };
     
     if (positionCounts[player.position] >= positionLimits[player.position]) {
@@ -345,6 +346,10 @@ const App = () => {
     }));
   };
 
+  const togglePause = () => {
+    setIsPaused((prev) => !prev);
+  };
+
   return (
     <div className="p-4 max-w-6xl mx-auto">
       {showAlert && (
@@ -461,12 +466,22 @@ const App = () => {
                   {timeLeft}
                 </div>
               </div>
-              <button
-                onClick={skipTurn}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-              >
-                Skip Turn
-              </button>
+              <div>
+                <div className="flex flex-col gap-2 mt-1 items-center">
+                  <button 
+                    onClick={togglePause} 
+                    className={`px-4 py-2 rounded ${isPaused ? 'bg-green-500' : 'bg-red-500'} text-white`}
+                  >
+                    {isPaused ? 'Resume' : 'Pause'}
+                  </button>
+                  <button
+                    onClick={skipTurn}
+                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+                  >
+                    Skip Turn
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -678,7 +693,7 @@ const App = () => {
           </p>
         </div>
         <p className="mt-4 text-sm text-gray-600">
-          Squad Requirements: 1 GK, 5 DEF, 5 MID, 4 FWD (17 total players)
+          Squad Requirements: 1 GK, 5 DEF, 5 MID, 6 FWD (17 total players)
         </p>
         <p className="mt-1 text-sm text-gray-600">
           Each manager has a £110m budget. Players must be selected according to position limits.
