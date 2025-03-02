@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, DragEvent } from 'react';
 import Papa from 'papaparse';
 
 interface Player {
@@ -392,38 +392,91 @@ const App = () => {
      
       
       {!draftStarted && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Draft Order:
-          </label>
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
-              <input
-                type="radio"
-                name="draftMode"
-                value="linear"
-                checked={draftMode === 'linear'}
-                onChange={(e) => setDraftMode(e.target.value as 'linear' | 'snake')}
-                className="text-blue-600 focus:ring-blue-500 h-4 w-4"
-              />
-              <span className="text-sm text-gray-700">
-                Linear Order (1-2-3-4 each round)
-              </span>
+        <div className="mb-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Draft Mode:
             </label>
-            
-            <label className="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
-              <input
-                type="radio"
-                name="draftMode"
-                value="snake"
-                checked={draftMode === 'snake'}
-                onChange={(e) => setDraftMode(e.target.value as 'linear' | 'snake')}
-                className="text-blue-600 focus:ring-blue-500 h-4 w-4"
-              />
-              <span className="text-sm text-gray-700">
-                Snake Order (1-2-3-4, 4-3-2-1)
-              </span>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
+                <input
+                  type="radio"
+                  name="draftMode"
+                  value="linear"
+                  checked={draftMode === 'linear'}
+                  onChange={(e) => setDraftMode(e.target.value as 'linear' | 'snake')}
+                  className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                />
+                <span className="text-sm text-gray-700">
+                  Linear Order (1-2-3-4 each round)
+                </span>
+              </label>
+              
+              <label className="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
+                <input
+                  type="radio"
+                  name="draftMode"
+                  value="snake"
+                  checked={draftMode === 'snake'}
+                  onChange={(e) => setDraftMode(e.target.value as 'linear' | 'snake')}
+                  className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                />
+                <span className="text-sm text-gray-700">
+                  Snake Order (1-2-3-4, 4-3-2-1)
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Manager Draft Order (Drag to reorder):
             </label>
+            <div className="space-y-2">
+              {managers.sort((a, b) => a.order - b.order).map((manager, index) => (
+                <div
+                  key={manager.id}
+                  draggable
+                  onDragStart={(e: DragEvent<HTMLDivElement>) => {
+                    e.dataTransfer.setData('text/plain', manager.id.toString());
+                  }}
+                  onDragOver={(e: DragEvent<HTMLDivElement>) => {
+                    e.preventDefault();
+                  }}
+                  onDrop={(e: DragEvent<HTMLDivElement>) => {
+                    e.preventDefault();
+                    const draggedId = parseInt(e.dataTransfer.getData('text/plain'));
+                    const draggedManager = managers.find(m => m.id === draggedId);
+                    const targetManager = manager;
+                    
+                    if (draggedManager && targetManager) {
+                      const newManagers = managers.map(m => {
+                        if (m.id === draggedManager.id) {
+                          return { ...m, order: targetManager.order };
+                        }
+                        if (m.id === targetManager.id) {
+                          return { ...m, order: draggedManager.order };
+                        }
+                        return m;
+                      });
+                      setManagers(newManagers);
+                    }
+                  }}
+                  className="flex items-center gap-4 p-3 bg-white border rounded shadow-sm cursor-move hover:bg-gray-50"
+                >
+                  <div className="text-gray-500">#{index + 1}</div>
+                  <img
+                    src={manager.image}
+                    alt={manager.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/default-manager.svg';
+                    }}
+                  />
+                  <div className="font-medium">{manager.name}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
