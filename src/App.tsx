@@ -44,7 +44,7 @@ const App = () => {
       spent: 0,
       players: [] as Player[],
       image: '/manager_randy.png' ,
-      order:2
+      order:1
     },
     { 
       id: 2, 
@@ -53,10 +53,10 @@ const App = () => {
       spent: 0,
       players: [] as Player[],
       image: '/manager_ilham.png',
-      order:1
+      order:2
     },
-    { id: 3, name: 'Apeha10', budget: 101, spent: 0, players: [] as Player[], image: '/manager_aph.png' ,order:4},
-    { id: 4, name: 'Darfat', budget: 101, spent: 0, players: [] as Player[], image: '/manager_darfat.png',order:3 }
+    { id: 3, name: 'Apeha10', budget: 101, spent: 0, players: [] as Player[], image: '/manager_aph.png' ,order:3},
+    { id: 4, name: 'Darfat', budget: 101, spent: 0, players: [] as Player[], image: '/manager_darfat.png',order:4 }
   ]);
   const [currentManager, setCurrentManager] = useState(0);
   const [draftStarted, setDraftStarted] = useState(false);
