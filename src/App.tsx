@@ -43,7 +43,8 @@ const App = () => {
       budget: 101,
       spent: 0,
       players: [] as Player[],
-      image: '/manager_randy.png' 
+      image: '/manager_randy.png' ,
+      order:2
     },
     { 
       id: 2, 
@@ -51,10 +52,11 @@ const App = () => {
       budget: 101,
       spent: 0,
       players: [] as Player[],
-      image: '/manager_ilham.png'
+      image: '/manager_ilham.png',
+      order:1
     },
-    { id: 3, name: 'Apeha10', budget: 101, spent: 0, players: [] as Player[], image: '/manager_aph.png' },
-    { id: 4, name: 'Darfat', budget: 101, spent: 0, players: [] as Player[], image: '/manager_darfat.png' }
+    { id: 3, name: 'Apeha10', budget: 101, spent: 0, players: [] as Player[], image: '/manager_aph.png' ,order:4},
+    { id: 4, name: 'Darfat', budget: 101, spent: 0, players: [] as Player[], image: '/manager_darfat.png',order:3 }
   ]);
   const [currentManager, setCurrentManager] = useState(0);
   const [draftStarted, setDraftStarted] = useState(false);
@@ -162,7 +164,11 @@ const App = () => {
     if (!player) return;
     
     const manager = managers[currentManager];
-    
+    if (manager.players.length >= 17) {
+      setAlertMessage(`${manager.name} already has the maximum of 17 players!`);
+      setShowAlert(true);
+      return;
+    }
     if (player.price > manager.budget) {
       setAlertMessage(`${manager.name} needs £${player.price - manager.budget}m more to buy ${player.name}`);
       setShowAlert(true);
@@ -638,7 +644,7 @@ const App = () => {
           <h2 className="text-2xl font-bold mb-4">Teams</h2>
           
           <div className="space-y-4">
-            {managers.map((manager, index) => (
+            {managers.sort((a, b) => a.order - b.order).map((manager, index) => (
               <div 
                 key={manager.id} 
                 className={`border rounded p-3 ${index === currentManager && draftStarted ? 'border-blue-500 bg-blue-50' : ''}`}
