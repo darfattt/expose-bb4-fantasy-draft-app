@@ -169,6 +169,13 @@ const App = () => {
       setShowAlert(true);
       return;
     }
+
+    // if (manager.name === 'Randy' && player.price > 6.0) {
+    //   setAlertMessage(`${manager.name}  cannot buy any player priced higher than £6.0`);
+    //   setShowAlert(true);
+    //   return;
+    // }
+
     if (player.price > manager.budget) {
       setAlertMessage(`${manager.name} needs £${player.price - manager.budget}m more to buy ${player.name}`);
       setShowAlert(true);
