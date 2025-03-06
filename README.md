@@ -1,68 +1,93 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Fantasy Draft Application
 
-## Available Scripts
+## Overview
+The Fantasy Draft Application is a web-based platform that allows users to simulate a fantasy sports draft. Users can create teams, select players, and manage their budgets while adhering to specific position limits. The application provides a user-friendly interface for managing drafts, viewing player statistics, and tracking team compositions.
 
-In the project directory, you can run:
+![App](./screenshoot.png)
 
-### `npm start`
+App : [https://expose-bb4-fantasy-draft-d1mny5ea4-darfats-projects.vercel.app/](https://expose-bb4-fantasy-draft-d1mny5ea4-darfats-projects.vercel.app/)
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Tech Stack
+This application is built using the following technologies:
+- **React**: A JavaScript library for building user interfaces.
+- **TypeScript**: A superset of JavaScript that adds static types, enhancing code quality and maintainability.
+- **Tailwind CSS**: A utility-first CSS framework for styling the application.
+- **Papa Parse**: A powerful library for parsing CSV files, used to load player data.
+- **Vercel**: A platform for deploying frontend applications with ease.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+## Features
+- User authentication and management
+- Player selection with position limits
+- Budget management for each team
+- Draft history tracking
+- Responsive design for mobile and desktop views
 
-### `npm test`
+## Getting Started
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Prerequisites
+Make sure you have the following installed:
+- Node.js (version 14 or higher)
+- npm (Node package manager)
 
-### `npm run build`
+### Running the Application
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/fantasy-draft-app.git
+   cd fantasy-draft-app
+   ```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. Install the dependencies:
+   ```bash
+   npm install
+   ```
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+3. Start the development server:
+   ```bash
+   npm start
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Building for Production
+To create a production build of the application, run:
+```bash
+npm run build
+```
+This will generate a `build` folder containing the optimized application.
 
-### `npm run eject`
+## Deploying to Vercel
+To deploy the application to Vercel, follow these steps:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+1. Make sure you have a Vercel account. If you don't have one, sign up at [Vercel](https://vercel.com/).
+2. Install the Vercel CLI globally:
+   ```bash
+   npm install -g vercel
+   ```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+3. In the root of your project directory, run:
+   ```bash
+   vercel
+   ```
+   Follow the prompts to link your project to your Vercel account and deploy it.
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+4. After deployment, Vercel will provide you with a URL where your application is hosted.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Contributing
+Contributions are welcome! If you would like to contribute to this project, please follow these steps:
 
-## Learn More
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix:
+   ```bash
+   git checkout -b feature/YourFeatureName
+   ```
+3. Make your changes and commit them:
+   ```bash
+   git commit -m "Add your message here"
+   ```
+4. Push your changes to your forked repository:
+   ```bash
+   git push origin feature/YourFeatureName
+   ```
+5. Create a pull request to the main repository.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+## License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
